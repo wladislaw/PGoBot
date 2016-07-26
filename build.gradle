@@ -1,0 +1,69 @@
+group 'ink.abb'
+version '0.3.0'
+
+buildscript {
+    ext.kotlin_version = '1.0.3'
+
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'application'
+
+mainClassName = 'ink.abb.pogo.scraper.MainKt'
+
+sourceCompatibility = 1.5
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+	flatDir {
+       dirs 'libs'
+   }
+}
+
+dependencies {
+
+    //compile project(':PokeGOAPI-Java')
+
+    //compile 'com.github.Grover-c13:PokeGOAPI-Java:master-SNAPSHOT-4f5b715380-1'
+	compile files('libs/PokeGOAPI-Java_bundle-0.0.1-SNAPSHOT.jar')
+
+    compile 'com.squareup.okhttp3:okhttp:3.4.0-RC1'
+
+    // https://mvnrepository.com/artifact/org.isuper/s2-geometry-library-java
+    compile group: 'org.isuper', name: 's2-geometry-library-java', version: '0.0.1'
+
+    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.0.0-beta-3'
+    //compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
+
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2'
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Pokemon Go Bot',
+                'Implementation-Version': version,
+                'Main-Class': mainClassName
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+jar {
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': mainClassName
+        )
+    }
+}
